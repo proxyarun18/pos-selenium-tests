@@ -899,11 +899,11 @@ public class SeleniumBase extends Reporter implements Browser, Element {
 			FileUtils.copyFile(getDriver().getScreenshotAs(OutputType.FILE),
 					new File("./" + Reporter.folderName + "/images/" + number + ".jpg"));
 		} catch (WebDriverException e) {
-			reportStep("The browser has been closed." + e.getMessage(), "fail");
+			System.err.println("The browser has been closed." + e.getMessage());
 		} catch (IOException e) {
-			reportStep("The snapshot could not be taken " + e.getMessage(), "warning");
+			System.err.println("The snapshot could not be taken " + e.getMessage());
 		} catch (Exception e) {
-			reportStep(e.getMessage(), "fail");
+			System.err.println("Screenshot failed: " + e.getMessage());
 		}
 		return number;
 	}
