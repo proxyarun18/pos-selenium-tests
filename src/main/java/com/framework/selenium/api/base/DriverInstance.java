@@ -62,7 +62,7 @@ public class DriverInstance{
 			desiredCapEdge.setBrowserName("MicrosoftEdge");
 			desiredCapEdge.setPlatform(Platform.LINUX);
 			edgeOptions.merge(desiredCapEdge);
-			remoteWebdriver.set(new RemoteWebDriver(new URL("http://20.244.50.112:32000/wd/hub"), edgeOptions));
+			remoteWebdriver.set(new RemoteWebDriver(new URL("http://4.213.224.7:32000/wd/hub"), edgeOptions));
 			break;	
 		case "ie":
 			remoteWebdriver.set(new InternetExplorerDriver());
