@@ -65,7 +65,7 @@ public class DriverInstance{
 			remoteWebdriver.set(new RemoteWebDriver(new URL("http://4.213.224.7:32000/wd/hub"), edgeOptions));
 			break;	
 		case "ie":
-			remoteWebdriver.set(new InternetExplorerDriver());
+			remoteWebdriver.set((RemoteWebDriver) new InternetExplorerDriver());
 		default:
 			break;
 		
