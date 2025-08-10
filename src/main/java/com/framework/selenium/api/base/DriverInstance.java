@@ -30,39 +30,69 @@ public class DriverInstance{
 	}
 
 	public void setDriver(String browser, boolean headless) throws MalformedURLException {		
+		// Check if we should use local drivers (for local testing)
+		boolean useLocal = Boolean.parseBoolean(System.getProperty("use.local.driver", "false"));
+		
 		switch (browser) {
 		case "chrome":
 			ChromeOptions options = new ChromeOptions();
 			options.addArguments("--start-maximized"); 
 			options.addArguments("--disable-notifications"); 
 			options.setAcceptInsecureCerts(true);
-			// options.addArguments("--incognito");
-		  	DesiredCapabilities dc = new DesiredCapabilities();
-			dc.setBrowserName("chrome");
-			dc.setPlatform(Platform.LINUX);
-			options.merge(dc);
-
-			remoteWebdriver.set(new RemoteWebDriver(new URL("http://4.213.224.7:32000/wd/hub"), options));
+			if (headless) {
+				options.addArguments("--headless");
+			}
+			
+			if (useLocal) {
+				// Use local ChromeDriver for testing
+				remoteWebdriver.set((RemoteWebDriver) new ChromeDriver(options));
+			} else {
+				// Use remote Selenium Grid (production)
+				DesiredCapabilities dc = new DesiredCapabilities();
+				dc.setBrowserName("chrome");
+				dc.setPlatform(Platform.LINUX);
+				options.merge(dc);
+				remoteWebdriver.set(new RemoteWebDriver(new URL("http://4.213.224.7:32000/wd/hub"), options));
+			}
 			break;
 		case "firefox":
 			FirefoxOptions firefoxOptions = new FirefoxOptions();
 			firefoxOptions.addArguments("--disable-notifications"); 
-			//firefoxOptions.setAcceptInsecureCerts(true);
-			DesiredCapabilities desiredCap = new DesiredCapabilities();
-			desiredCap.setBrowserName("firefox");
-			desiredCap.setPlatform(Platform.LINUX);
-			firefoxOptions.merge(desiredCap);
-			remoteWebdriver.set(new RemoteWebDriver(new URL("http://4.213.224.7:32000/wd/hub"), firefoxOptions));
+			if (headless) {
+				firefoxOptions.addArguments("--headless");
+			}
+			
+			if (useLocal) {
+				// Use local FirefoxDriver for testing  
+				remoteWebdriver.set((RemoteWebDriver) new FirefoxDriver(firefoxOptions));
+			} else {
+				// Use remote Selenium Grid (production)
+				DesiredCapabilities desiredCap = new DesiredCapabilities();
+				desiredCap.setBrowserName("firefox");
+				desiredCap.setPlatform(Platform.LINUX);
+				firefoxOptions.merge(desiredCap);
+				remoteWebdriver.set(new RemoteWebDriver(new URL("http://4.213.224.7:32000/wd/hub"), firefoxOptions));
+			}
 			break;
 		case "edge":
 			EdgeOptions edgeOptions = new EdgeOptions();
 			edgeOptions.addArguments("--disable-notifications"); 
 			edgeOptions.setAcceptInsecureCerts(true);
-			DesiredCapabilities desiredCapEdge = new DesiredCapabilities();
-			desiredCapEdge.setBrowserName("MicrosoftEdge");
-			desiredCapEdge.setPlatform(Platform.LINUX);
-			edgeOptions.merge(desiredCapEdge);
-			remoteWebdriver.set(new RemoteWebDriver(new URL("http://4.213.224.7:32000/wd/hub"), edgeOptions));
+			if (headless) {
+				edgeOptions.addArguments("--headless");
+			}
+			
+			if (useLocal) {
+				// Use local EdgeDriver for testing
+				remoteWebdriver.set((RemoteWebDriver) new EdgeDriver(edgeOptions));
+			} else {
+				// Use remote Selenium Grid (production)
+				DesiredCapabilities desiredCapEdge = new DesiredCapabilities();
+				desiredCapEdge.setBrowserName("MicrosoftEdge");
+				desiredCapEdge.setPlatform(Platform.LINUX);
+				edgeOptions.merge(desiredCapEdge);
+				remoteWebdriver.set(new RemoteWebDriver(new URL("http://4.213.224.7:32000/wd/hub"), edgeOptions));
+			}
 			break;	
 		case "ie":
 			remoteWebdriver.set((RemoteWebDriver) new InternetExplorerDriver());

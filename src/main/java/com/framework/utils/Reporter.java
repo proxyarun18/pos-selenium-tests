@@ -95,17 +95,17 @@ public abstract class Reporter extends DriverInstance {
 				}
 			}
 			if (status.equalsIgnoreCase("pass")) {
-				test.get().pass(desc, img);
+				if (test.get() != null) test.get().pass(desc, img);
 			} else if (status.equalsIgnoreCase("fail")) { // additional steps to manage alert pop-up
-				test.get().fail(desc, img);
+				if (test.get() != null) test.get().fail(desc, img);
 				throw new RuntimeException("See the reporter for details.");
 
 			} else if (status.equalsIgnoreCase("warning")) {
-				test.get().warning(desc, img);
+				if (test.get() != null) test.get().warning(desc, img);
 			} else if (status.equalsIgnoreCase("skipped")) {
-				test.get().skip("The test is skipped due to dependency failure");
+				if (test.get() != null) test.get().skip("The test is skipped due to dependency failure");
 			} else if (status.equalsIgnoreCase("INFO")) {
-				test.get().info(desc);
+				if (test.get() != null) test.get().info(desc);
 			}
 
 			
