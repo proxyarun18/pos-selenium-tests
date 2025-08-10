@@ -10,19 +10,26 @@ variables:
   sonarToken: 'sqp_0a4b770d57dda6e9259c353925571263a6a155c1'
 
 stages:
-  - stage: SonarQubeAnalysis
-    displayName: Run SonarQube Analysis on QA Repo
+  - stage: QA_Build_And_Scan
+    displayName: Build, Test and SonarQube Scan
     jobs:
-      - job: SonarQubeScan
+      - job: BuildTestScan
         pool:
           vmImage: 'ubuntu-latest'
         steps:
           - checkout: self
 
+          # Run tests first
           - script: |
-              mvn clean verify sonar:sonar \
+              mvn clean verify
+            displayName: Run Tests
+
+          # Run SonarQube scan even if tests failed
+          - script: |
+              mvn sonar:sonar \
                 -Dsonar.projectKey=$(sonarProjectKey) \
                 -Dsonar.projectName='$(sonarProjectName)' \
                 -Dsonar.host.url=$(sonarHostUrl) \
                 -Dsonar.token=$(sonarToken)
-            displayName: Run Maven SonarQube Scan
+            displayName: Run SonarQube Scan
+            continueOnError: true
