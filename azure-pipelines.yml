@@ -1,7 +1,13 @@
-trigger:
-  branches:
-    include:
-      - main
+trigger: none
+
+resources:
+  pipelines:
+    - pipeline: testleaf
+      source: proxyarun18.Testleaf-pos
+      trigger:
+        branches:
+          include:
+            - dev
 
 variables:
   sonarProjectKey: 'SonarQubeArun'
@@ -10,26 +16,50 @@ variables:
   sonarToken: 'sqp_0a4b770d57dda6e9259c353925571263a6a155c1'
 
 stages:
-  - stage: QA_Build_And_Scan
-    displayName: Build, Test and SonarQube Scan
+  - stage: SonarScan
+    displayName: "Stage 1: SonarQube Scan"
     jobs:
-      - job: BuildTestScan
+      - job: RunSonar
+        displayName: "Run SonarQube Scanner"
         pool:
-          vmImage: 'ubuntu-latest'
+          vmImage: ubuntu-latest
         steps:
           - checkout: self
-
-          # Run tests first
           - script: |
-              mvn clean verify
-            displayName: Run Tests
-
-          # Run SonarQube scan even if tests failed
-          - script: |
-              mvn sonar:sonar \
+              echo "=== Running SonarQube Scan ==="
+              mvn clean verify sonar:sonar \
                 -Dsonar.projectKey=$(sonarProjectKey) \
                 -Dsonar.projectName='$(sonarProjectName)' \
                 -Dsonar.host.url=$(sonarHostUrl) \
-                -Dsonar.token=$(sonarToken)
-            displayName: Run SonarQube Scan
-            continueOnError: true
+                -Dsonar.token=$(sonarToken) \
+                -Dsonar.skipTests=true
+            displayName: "Run Maven SonarQube Scan"
+
+  - stage: RunTests
+    displayName: "Stage 2: Maven Tests"
+    dependsOn: SonarScan
+    condition: always()   # Run regardless of SonarScan result
+    jobs:
+      - job: MavenTests
+        displayName: "Run Maven Tests"
+        pool:
+          vmImage: ubuntu-latest
+        steps:
+          - checkout: self
+          - task: Maven@3
+            displayName: 'Run Maven Test'
+            inputs:
+              mavenPomFile: 'pom.xml'
+              mavenOptions: '-Xmx3072m'
+              javaHomeOption: 'JDKVersion'
+              jdkVersionOption: '1.8'
+              jdkArchitectureOption: 'x64'
+              publishJUnitResults: true
+              testResultsFiles: '**/surefire-reports/TEST-*.xml'
+              goals: 'clean test'
+
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish ExtentReports'
+            inputs:
+              pathtoPublish: '$(Build.SourcesDirectory)/reports'
+              artifactName: 'ExtentReports'
