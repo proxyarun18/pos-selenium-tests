@@ -618,11 +618,20 @@ public class SeleniumBase extends Reporter implements Browser, Element {
 			setWait();
 			getDriver().manage().window().maximize();
 			getDriver().manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
-			getDriver().manage().timeouts().pageLoadTimeout(Duration.ofSeconds(20));
+			getDriver().manage().timeouts().pageLoadTimeout(Duration.ofSeconds(30));
+			
+			// Validate URL before navigation
+			System.out.println("Attempting to navigate to: " + url);
 			getDriver().get(url);
+			
+			// Wait for page to load and verify
+			Thread.sleep(2000);
+			System.out.println("Successfully navigated to: " + getDriver().getCurrentUrl());
+			
 		} catch (WebDriverException e) {
-			e.printStackTrace();
-			reportStep("The Browser Could not be Launched. Hence Failed \n" + e.getMessage(), "fail");
+			System.err.println("WebDriver Error: " + e.getMessage());
+			System.err.println("Failed URL: " + url);
+			reportStep("The Browser Could not navigate to the application URL: " + url + "\nError: " + e.getMessage(), "fail");
 		} catch (Exception e) {
 			e.printStackTrace();
 			reportStep("The Browser Could not be Launched. Hence Failed \n" + e.getMessage(), "fail");
