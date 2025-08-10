@@ -98,7 +98,7 @@ public abstract class Reporter extends DriverInstance {
 				if (test.get() != null) test.get().pass(desc, img);
 			} else if (status.equalsIgnoreCase("fail")) { // additional steps to manage alert pop-up
 				if (test.get() != null) test.get().fail(desc, img);
-				throw new RuntimeException("See the reporter for details.");
+				throw new RuntimeException("Test failed: " + desc);
 
 			} else if (status.equalsIgnoreCase("warning")) {
 				if (test.get() != null) test.get().warning(desc, img);
@@ -106,6 +106,8 @@ public abstract class Reporter extends DriverInstance {
 				if (test.get() != null) test.get().skip("The test is skipped due to dependency failure");
 			} else if (status.equalsIgnoreCase("INFO")) {
 				if (test.get() != null) test.get().info(desc);
+				// Don't throw exception for info messages
+				System.out.println("INFO: " + desc);
 			}
 
 			

@@ -622,15 +622,40 @@ public class SeleniumBase extends Reporter implements Browser, Element {
 			
 			// Validate URL before navigation
 			System.out.println("Attempting to navigate to: " + url);
-			getDriver().get(url);
 			
-			// Wait for page to load and verify
-			Thread.sleep(2000);
-			System.out.println("Successfully navigated to: " + getDriver().getCurrentUrl());
+			try {
+				getDriver().get(url);
+				// Wait for page to load and verify
+				Thread.sleep(3000);
+				String currentUrl = getDriver().getCurrentUrl();
+				System.out.println("Successfully navigated to: " + currentUrl);
+				
+				// Check if we got redirected or if page loaded successfully
+				if (currentUrl.contains("error") || getDriver().getTitle().toLowerCase().contains("error")) {
+					throw new WebDriverException("Application returned an error page");
+				}
+				
+				reportStep("Successfully launched the application at: " + currentUrl, "info");
+				
+			} catch (Exception urlException) {
+				System.err.println("Failed to load application URL: " + url);
+				System.err.println("Error: " + urlException.getMessage());
+				
+				// Try to get some information about what happened
+				try {
+					String currentUrl = getDriver().getCurrentUrl();
+					String title = getDriver().getTitle();
+					System.err.println("Current URL: " + currentUrl);
+					System.err.println("Page Title: " + title);
+				} catch (Exception e) {
+					System.err.println("Could not get current URL/title: " + e.getMessage());
+				}
+				
+				throw new WebDriverException("Cannot access the application URL: " + url + ". Please verify the URL is correct and the application is running. Error: " + urlException.getMessage());
+			}
 			
 		} catch (WebDriverException e) {
 			System.err.println("WebDriver Error: " + e.getMessage());
-			System.err.println("Failed URL: " + url);
 			reportStep("The Browser Could not navigate to the application URL: " + url + "\nError: " + e.getMessage(), "fail");
 		} catch (Exception e) {
 			e.printStackTrace();
